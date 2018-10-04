@@ -1,15 +1,30 @@
+package driver;
+
 import java.net.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * The initial demo class for testing using ports to message
+ *
+ *
+ * @author Mason Hernandez
+ * @author Jacob Landowski
+ * @version 1.0
+ */
 public class GroupChat
 {
     private static final String TERMINATE = "Exit";
-    static String name;
-    static volatile boolean finished = false;
-    public static final String MULTICAST = "224.0.0.0";
-    public static final int PORT = 1234;
+    private static String name;
+    private static volatile boolean finished = false;
+    private static final String MULTICAST = "224.0.0.0";
+    private static final int PORT = 1234;
 
+    /**
+     * Main function for this demo class
+     *
+     * @param args [MULTICAST, PORT]
+     */
     public static void main(String[] args)
     {
         try
@@ -17,9 +32,9 @@ public class GroupChat
             InetAddress group = InetAddress.getByName(MULTICAST);
 //            int port = Integer.parseInt(args[1]);
 
-            Scanner sc = new Scanner(System.in);
+            Scanner userIn = new Scanner(System.in);
             System.out.print("Enter your name: ");
-            name = sc.nextLine();
+            name = userIn.nextLine();
             MulticastSocket socket = new MulticastSocket(PORT);
 
             // Since we are deploying
@@ -27,17 +42,17 @@ public class GroupChat
 
             //this on localhost only (For a subnet set it as 1)
             socket.joinGroup(group);
-            Thread t = new Thread(new ReadThread(socket,group,PORT));
+            Thread userThread = new Thread(new ReadThread(socket,group,PORT));
 
             // Spawn a thread for reading messages
-            t.start();
+            userThread.start();
 
             // sent to the current group
             System.out.println("Start typing messages...\n");
             while(true)
             {
                 String message;
-                message = sc.nextLine();
+                message = userIn.nextLine();
                 if(message.equalsIgnoreCase(GroupChat.TERMINATE))
                 {
                     finished = true;
@@ -63,42 +78,22 @@ public class GroupChat
                     ie.printStackTrace();
         }
     }
-}
 
-class ReadThread implements Runnable
-{
-    private MulticastSocket socket;
-    private InetAddress group;
-    private int port;
-    private static final int MAX_LEN = 1000;
-    ReadThread(MulticastSocket socket,InetAddress group,int port)
+    /**
+     * Retrieves name
+     * @return string name
+     */
+    public static String getName()
     {
-        this.socket = socket;
-        this.group = group;
-        this.port = port;
+        return name;
     }
 
-    @Override
-    public void run()
+    /**
+     * Retrieves finished boolean
+     * @return boolean finished
+     */
+    public static boolean isFinished()
     {
-        while(!GroupChat.finished)
-        {
-            byte[] buffer = new byte[ReadThread.MAX_LEN];
-            DatagramPacket datagram = new
-                    DatagramPacket(buffer,buffer.length,group,port);
-            String message;
-            try
-            {
-                socket.receive(datagram);
-                message = new
-                        String(buffer,0,datagram.getLength(),"UTF-8");
-                if(!message.startsWith(GroupChat.name))
-                    System.out.println(message);
-            }
-            catch(IOException e)
-            {
-                System.out.println("Socket closed!");
-            }
-        }
+        return finished;
     }
 }
