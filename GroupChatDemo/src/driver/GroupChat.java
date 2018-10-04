@@ -17,7 +17,7 @@ public class GroupChat
     private static final String TERMINATE = "Exit";
     private static String name;
     private static volatile boolean finished = false;
-    private static final String MULTICAST = "224.0.0.0";
+    private static final String MULTICAST = "255.0.0.0";
     private static final int PORT = 1234;
 
     /**
@@ -81,6 +81,7 @@ public class GroupChat
 
     /**
      * Retrieves name
+     *
      * @return string name
      */
     public static String getName()
@@ -90,6 +91,7 @@ public class GroupChat
 
     /**
      * Retrieves finished boolean
+     *
      * @return boolean finished
      */
     public static boolean isFinished()
